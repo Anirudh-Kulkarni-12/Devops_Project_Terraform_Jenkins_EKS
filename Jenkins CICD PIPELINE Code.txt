@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION = "ap-south-2"
+    }
+    stages {
+        stage('Checkout Code') { // Stage name for the checkout
+            steps {
+                script {
+                    checkout scmGit(
+                        branches: [[name: '*/main']],
+                        extensions: [],
+                        userRemoteConfigs: [[url: 'https://github.com/Anirudh-Kulkarni-12/Devops_Project_Terraform_Jenkins_EKS.git']]
+                    )
+                }
+            }
+        }
+        stage('Terraform Init') { // Name added for the second stage
+            steps {
+                script {
+                    dir('EKS') {
+                        sh 'terraform init'
+                    }
+                }
+            }
+        }
+        stage('Formatting Terraform') { // Name added for the Thrid stage
+            steps {
+                script {
+                    dir('EKS') {
+                        sh 'terraform fmt'
+                    }
+                }
+            }
+        }
+        stage('Validating Terraform') { // Name added for the Fouth stage
+            steps {
+                script {
+                    dir('EKS') {
+                        sh 'terraform validate'
+                    }
+                }
+            }
+        }
+        stage('previewing the Infra using Terraform') { // Name added for the Fifth stage
+            steps {
+                script {
+                    dir('EKS') {
+                        sh 'terraform plan'
+                    }
+                }
+            }
+        }
+        stage('previewing the Infra using Terraform') { // Name added for the Sixth stage
+            steps {
+                script {
+                    dir('EKS') {
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+    }
+}
